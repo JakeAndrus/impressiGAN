@@ -2,6 +2,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img
 import numpy as np
 import os
 import PIL
+from matplotlib import pyplot
 
 class IOHandler():
     def __init__(self, path=''):
@@ -29,9 +30,11 @@ class IOHandler():
 
     def load_npz(self, path):
         path = self._pathify(path)
-        with np.load('real-images.npz') as data:
-            photo_imgs = data['photo']
-            impr_imgs = data['impr']
+        # with np.load('real-images.npz', mmap_mode='r+') as data:
+        #     photo_imgs = data['photo']
+        #     impr_imgs = data['impr']
+        photo_imgs = np.load('real-images/photo.npy', mmap_mode='r')
+        impr_imgs = np.load('real-images/impr.npy', mmap_mode='r')
         return photo_imgs, impr_imgs
 
     def save_imgs(self, path, images):
@@ -41,7 +44,7 @@ class IOHandler():
             img.save(path+ '/image-{}.jpg'.format(i))
 
 
-    def save_gen_models(self, path, step=1, g_model_AtoB, g_model_BtoA):
+    def save_gen_models(self, path, step, g_model_AtoB, g_model_BtoA):
         path = self._pathify(path)
         # save the first generator model
         filename1 = 'g_model_AtoB_%06d.h5' % (step+1)
@@ -60,13 +63,13 @@ class IOHandler():
     def save_fig(self, path, X_in, X_out):
         path = self._pathify(path)
         # plot real images
-        for i in range(n_samples):
-            pyplot.subplot(2, n_samples, 1 + i)
+        for i in range(3):
+            pyplot.subplot(2, 3, 1 + i)
             pyplot.axis('off')
             pyplot.imshow(X_in[i])
         # plot translated image
         for i in range(n_samples):
-            pyplot.subplot(2, n_samples, 1 + n_samples + i)
+            pyplot.subplot(2, 3, 1 + 3 + i)
             pyplot.axis('off')
             pyplot.imshow(X_out[i])
         # save plot to file

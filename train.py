@@ -1,22 +1,13 @@
-import tensorflow as tf
-import tensorflow_addons as tfa
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.initializers import RandomNormal
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D, Conv2DTranspose, LeakyReLU, Activation, Concatenate, Input
-from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img
 import os
 import sys
-import PIL
 import numpy as np
-from matplotlib import pyplot
 from models import ModelFactory
 from io_handler import IOHandler
 
 image_shape = (256, 256, 3)
 mf = ModelFactory(image_shape)
 g1, g2, d1, d2, c1, c2 = mf.training_models()
-
+io = IOHandler('C:/Users/Jake/Documents/testImpress')
 photo_imgs, impr_imgs = IOHandler().load_npz('real-images.npz')
 
 def generate_real_samples(dataset, n_samples, patch_shape):
@@ -55,7 +46,7 @@ def update_image_pool(pool, images, max_size=50):
 # train cyclegan models
 def train(d_model_A, d_model_B, g_model_AtoB, g_model_BtoA, c_model_AtoB, c_model_BtoA, dataset):
     # define properties of the training run
-    n_epochs, n_batch, = 50, 16 #* tpu_strategy.num_replicas_in_sync
+    n_epochs, n_batch, = 25, 1 #* tpu_strategy.num_replicas_in_sync
     # determine the output square shape of the discriminator
     n_patch = d_model_A.model.output_shape[1]
     # unpack dataset
@@ -80,6 +71,7 @@ def train(d_model_A, d_model_B, g_model_AtoB, g_model_BtoA, c_model_AtoB, c_mode
         # update fakes from pool
         X_fakeA = update_image_pool(poolA, X_fakeA)
         X_fakeB = update_image_pool(poolB, X_fakeB)
+        
         # update generator B->A via adversarial and cycle loss
         c_model_BtoA.set_trainable(True)
         g_loss2, _, _, _, _  = c_model_BtoA.model.train_on_batch([X_realB, X_realA], [y_realA, X_realA, X_realB, X_realA])
@@ -101,18 +93,19 @@ def train(d_model_A, d_model_B, g_model_AtoB, g_model_BtoA, c_model_AtoB, c_mode
         sys.stdout.write(s)
         sys.stdout.flush()
         # evaluate the model performance every so often
-        if (i+1) % int(bat_per_epo+13) == 0:
+        #if (i+1) % int(1) == 0:
             # plot A->B translation
-            summarize_performance(i, g_model_AtoB, trainA, 'AtoB')
+            #summarize_performance(i, g_model_AtoB, trainA, 'AtoB')
             # plot B->A translation
-            summarize_performance(i, g_model_BtoA, trainB, 'BtoA')
+            #summarize_performance(i, g_model_BtoA, trainB, 'BtoA')
         if (i+1) % (1000) == 0:
             # save the models
             io.save_models('models', step=i, models=[d_model_A, d_model_B, g_model_AtoB, g_model_BtoA, c_model_AtoB, c_model_BtoA])
-"""
-train(d1, d2, g1, g2, i2p, p2i, (impr_imgs, photo_imgs))
-##train(d1, d2, g1, g2, c1, c2, (photo_imgs, impr_imgs))
+        
 
+sys.stdout.write('starting training')
+sys.stdout.flush()
+train(d1, d2, g1, g2, c1, c2, (impr_imgs, photo_imgs))
+sys.stdout.write('training finished')
+sys.stdout.flush()
 summarize_performance(0, g2, photo_imgs, 'BtoA')
-
-"""
