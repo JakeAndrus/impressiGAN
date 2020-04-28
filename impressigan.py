@@ -9,6 +9,7 @@ from PyInquirer import style_from_dict, Token, prompt, Separator
 from PyInquirer import Validator, ValidationError
 from train import Trainer
 from generate import Generator
+from io_handler import IOHandler
 
 
 style = style_from_dict({ #taken from the codeburst example and tweaked
@@ -92,8 +93,10 @@ class FileValidator(Validator): #checking if is file and an image
 class App():
     def __init__(self):
         print('Welcome to ImpressiGAN!')
+        self.io = IOHandler()
+        image_shape = (256, 256, 3)
         self.gen = Generator()
-        self.trainer = Trainer()
+        self.trainer = Trainer(image_shape, self.io)
         self.choose_action()
     
     def choose_action(self):
