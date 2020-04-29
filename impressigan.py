@@ -9,7 +9,7 @@ from pprint import pprint
 from PyInquirer import style_from_dict, Token, prompt, Separator
 from PyInquirer import Validator, ValidationError
 from train import Trainer
-from generate import Generator
+from generate import PicGenerator
 from io_handler import IOHandler
 
 
@@ -120,7 +120,7 @@ class App():
         print('now', WORKDIR)
         self.io = IOHandler(WORKDIR)
         image_shape = (256, 256, 3)
-        self.gen = Generator(self.io)
+        self.gen = PicGenerator(self.io)
         self.trainer = Trainer(image_shape, self.io)
         self.choose_action()
     

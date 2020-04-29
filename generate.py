@@ -3,7 +3,7 @@ import os
 from io_handler import IOHandler
 
 
-class Generator():
+class PicGenerator():
     def __init__(self, io):
         self.io = io
     def generate(self, w, path1, path2):
