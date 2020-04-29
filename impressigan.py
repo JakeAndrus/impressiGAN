@@ -4,6 +4,7 @@ from __future__ import print_function, unicode_literals
 import regex
 import os
 
+#from pyfiglet import Figlet
 from pprint import pprint
 from PyInquirer import style_from_dict, Token, prompt, Separator
 from PyInquirer import Validator, ValidationError
@@ -13,11 +14,11 @@ from io_handler import IOHandler
 
 
 style = style_from_dict({ #taken from the codeburst example and tweaked
-    Token.QuestionMark: '#E91E63 bold',
-    Token.Selected: '#673AB7 bold',
-    Token.Instruction: '',  # default
-    Token.Answer: '#2196f3 bold',
-    Token.Question: '',
+    Token.QuestionMark: '#0970b0 bold',
+    Token.Selected: '#9369ed bold', #slightly darker than question
+    Token.Instruction: '#d3befa', 
+    Token.Answer: '#6516f2 bold',
+    Token.Question: '#9361ed',
 })
 
 WORKDIR = ''
@@ -36,14 +37,16 @@ class PictureValidator(Validator): #checking if the folder has at least 1000 pic
             raise ValidationError(
             message='The file path does not exist! Please enter a valid path:',
             cursor_position=len(document.text))  # Move cursor to end'
-        is_folder = os.path.isdir(wdir + document.text) 
+
+        is_folder = os.path.isdir(wdir + document.text) #checking if it is a directory
+
         if not is_folder:
             raise ValidationError(
             message='The file path does not lead to a folder! Please enter a valid path:',
             cursor_position=len(document.text))  # Move cursor to end'
-        has_1000 = False
-        contents = len(os.listdir(wdir + document.text))
-        if contents < 10:
+
+        contents = len(os.listdir(wdir+document.text)) #and making sure it has at last 1000 photos in it
+        if contents < 1000:
             raise ValidationError(
             message='There is not enough files to properly train in this folder! Please try again:',
             cursor_position=len(document.text))  # Move cursor to end'
@@ -63,7 +66,8 @@ class PathValidator(Validator): #checking if is folder
             raise ValidationError(
             message='The file path does not exist! Please enter a valid path:',
             cursor_position=len(document.text))  # Move cursor to end'
-        is_folder = os.path.isdir(wdir + document.text) 
+
+        is_folder = os.path.isdir(wdir+document.text) #but this time we just need to make sure it is a folder. Probs could've been combined
         if not is_folder:
             raise ValidationError(
             message='The file path does not lead to a folder! Please enter a valid path:',
@@ -90,19 +94,20 @@ class FileValidator(Validator): #checking if is file and an image
         files = os.listdir(wdir + document.text)
         for file in files:
             file = wdir + document.text + '/' + file
-            is_file = os.path.isfile(file) 
-            doc = os.path.basename(file)
+            is_file = os.path.isfile(file)  # check file
+            doc = os.path.basename(file) #check file type
             f_type = doc.split('.')
             is_img = True if f_type[1] == 'pdf' or f_type[1] == 'jpg' or f_type[1] == 'png' else False
             if not (is_file and is_img):
                 raise ValidationError(
                 message='The file path does not lead to an image! Please enter a valid path:',
                 cursor_position=len(document.text))  # Move cursor to end'
-        
-
 
 class App():
     def __init__(self):
+        #this would have been fun 
+      #  f = Figlet(font='speed')
+      #  print(f.renderText('ImpressiGAN'))
         print('Welcome to ImpressiGAN!')
         answer = prompt([{
             'type': 'input',
@@ -132,22 +137,20 @@ class App():
                     },
                     {
                         'name': 'Generate a Picture'
-                    },
-                    {
-                        'name': 'See Cool Pics'
-                    },
+                    }
                 ],
                 'validate': lambda answer: 'You must choose an option' \
                     if len(answer) == 0 else True
             }
         ]
-        answer = prompt(questions, style = style)
-        print(answer['actions'])
-        if answer['actions'] == ['Train a Model (this will take a while!)']:
+        answer = prompt(questions, style = style) #this is what pulls the user answers and gives them to us in a dictionary
+        print(answer['actions']) #so we take them
+        if answer['actions'] == ['Train a Model (this will take a while!)']: #and check what they are
             self.train()
         elif answer['actions'] == ['Generate a Picture']:
             self.generate()
-        
+        else:
+            print("Oops! Not a valid action.")
 
 
     def generate(self):
@@ -173,9 +176,9 @@ class App():
                 'validate': PathValidator
             }
         ]
-        answers = prompt(questions)
+        answers = prompt(questions, style = style) 
         print('Converting now...')
-        self.gen.generate(answers['weights'], answers['src image'], answers['target'])
+        self.gen.generate(answers['weights'], answers['src image'], answers['target']) #link to generarot facade
         print('Check your folder!')
     
     def train(self):
@@ -193,8 +196,8 @@ class App():
                 'validate': PictureValidator
             }
         ]
-        answers = prompt(questions)
-        print('Training now...')
+        answers = prompt(questions, style = style)
+        print('Training now...') #link to training facade
         self.trainer.train(answers['src images'], answers['src art'])
 
 app = App()
