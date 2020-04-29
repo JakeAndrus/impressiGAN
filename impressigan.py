@@ -96,9 +96,15 @@ class App():
       #  f = Figlet(font='speed')
       #  print(f.renderText('ImpressiGAN'))
         print('Welcome to ImpressiGAN!')
-        self.io = IOHandler()
+        answer = prompt([{
+            'type': 'input',
+            'name': 'workdir',
+            'message': 'Please enter the your working directory!',
+            'validate': PathValidator
+        }])
+        self.io = IOHandler(answer['workdir'])
         image_shape = (256, 256, 3)
-        self.gen = Generator()
+        self.gen = Generator(self.io)
         self.trainer = Trainer(image_shape, self.io)
         self.choose_action()
     
