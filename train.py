@@ -33,6 +33,7 @@ class Trainer():
         X_out = (X_out + 1) / 2.0
         self.io.save_fig('figs', X_in, X_out)
 
+    #image pool abstraction function
     def _update_image_pool(self, pool, images, max_size=50):
         selected = list()
         for image in images:

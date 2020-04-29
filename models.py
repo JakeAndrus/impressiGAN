@@ -25,10 +25,8 @@ class BaseNeuralNetwork:
         else:
             print("{} is not built yet".format(self.name))
             
-    #candidate for more template treatment
-        #conv transpose or not
-        #leaky relu, normal relu, or none
-        #etc
+    #create_conv_block is a bit of a template function used by the generator and discriminator models,
+    #which need to add chunks of layers with slightly different attributes at different times
     def create_conv_block(self, input_layer, output_space, kernal_size, instance_norm=True, relu='leaky', strides=(2, 2), transpose=False):
         if transpose:
             conv = Conv2DTranspose(output_space, 
@@ -55,6 +53,7 @@ class Discriminator(BaseNeuralNetwork):
         super().__init__(name, input_shape)
         
     def paper_build(self):    
+        #layers are added in a decorator fashion, where the previous layers are passed in to the creation of the new layers
         c = self.create_conv_block(self.input_layer, 64, (4, 4), instance_norm=False)
         c = self.create_conv_block(c, 128, (4, 4))
         c = self.create_conv_block(c, 256, (4, 4))
@@ -161,7 +160,7 @@ class Composite():
         else:
             print("{} is not built yet".format(self.name))
 
-
+#Factory pattern for returning models
 class ModelFactory():
     def __init__(self, image_shape):
         self.image_shape = image_shape

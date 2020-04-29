@@ -120,6 +120,7 @@ class App():
         print('now', WORKDIR)
         self.io = IOHandler(WORKDIR)
         image_shape = (256, 256, 3)
+        #gen and trainer are facade classes for the complex tasks of generation and training
         self.gen = PicGenerator(self.io)
         self.trainer = Trainer(image_shape, self.io)
         self.choose_action()

@@ -4,6 +4,7 @@ import os
 import PIL
 from matplotlib import pyplot
 
+#Adapter for integrating with a computer's file system
 class IOHandler():
     def __init__(self, path=''):
         self.workdir = path
@@ -21,13 +22,16 @@ class IOHandler():
         for i in range(len(all_files)):
             file = all_files[i]
             print(i, end='\r')
+            #load image
             image = np.array(load_img(path+'/'+ file, target_size=(256, 256)))
+            #scale image
             image = (image - 127.5) / 127.5
             imgs[i] = image
             del image
-            
+        #return numpy array of images
         return imgs
 
+    #load saved numpy array files
     def load_npz(self, path):
         path = self._pathify(path)
         # with np.load('real-images.npz', mmap_mode='r+') as data:
