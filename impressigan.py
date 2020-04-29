@@ -93,9 +93,15 @@ class FileValidator(Validator): #checking if is file and an image
 class App():
     def __init__(self):
         print('Welcome to ImpressiGAN!')
-        self.io = IOHandler()
+        answer = prompt([{
+            'type': 'input',
+            'name': 'workdir',
+            'message': 'Please enter the your working directory!',
+            'validate': PathValidator
+        }])
+        self.io = IOHandler(answer['workdir'])
         image_shape = (256, 256, 3)
-        self.gen = Generator()
+        self.gen = Generator(self.io)
         self.trainer = Trainer(image_shape, self.io)
         self.choose_action()
     
@@ -127,8 +133,7 @@ class App():
             self.train()
         elif answer['actions'] == ['Generate a Picture']:
             self.generate()
-        else:
-            print("butthole")
+        
 
 
     def generate(self):
